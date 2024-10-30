@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>ALTRUISTY</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div class="loader">
+      <div class="loader-cube">
+        <div class="loader-front"></div>
+        <div class="loader-back"></div>
+        <div class="loader-right"></div>
+        <div class="loader-left"></div>
+        <div class="loader-top"></div>
+        <div class="loader-bottom"></div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- 3D Cubes -->
+      <!-- <div class="cube" style="top: 20%; left: 20%;">
+            <div class="cube-front"></div>
+            <div class="cube-back"></div>
+            <div class="cube-right"></div>
+            <div class="cube-left"></div>
+            <div class="cube-top"></div>
+            <div class="cube-bottom"></div>
+        </div>
+        <div class="cube" style="top: 70%; left: 80%;">
+            <div class="cube-front"></div>
+            <div class="cube-back"></div>
+            <div class="cube-right"></div>
+            <div class="cube-left"></div>
+            <div class="cube-top"></div>
+            <div class="cube-bottom"></div>
+        </div> -->
+
+      <!-- Login Form -->
+      <div class="form-container login active">
+        <h1 class="logo">Player Login</h1>
+        <form
+          id="loginForm"
+          onsubmit="return handleLogin(event)"
+          autocomplete="off"
+        >
+          <div class="input-group">
+            <input type="text" id="loginUsername" required />
+            <label>Username</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="loginPassword" required />
+            <label>Password</label>
+          </div>
+          <div class="error-message" id="loginError"></div>
+          <!-- <button type="submit" class="btn">Enter Battle</button> -->
+          <button type="submit" class="button">
+            ENTER BATTLE
+            <div id="clip">
+              <div id="leftTop" class="corner"></div>
+              <div id="rightBottom" class="corner"></div>
+              <div id="rightTop" class="corner"></div>
+              <div id="leftBottom" class="corner"></div>
+            </div>
+            <span id="rightArrow" class="arrow"></span>
+            <span id="leftArrow" class="arrow"></span>
+          </button>
+          <div class="switch-form">
+            New Player?
+            <a href="#" onclick="toggleForm('signup')">Join the Battle</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="form-container signup">
+        <h1 class="logo">Join Battle</h1>
+        <form
+          id="signupForm"
+          onsubmit="return handleSignup(event)"
+          autocomplete="off"
+        >
+          <div class="input-group">
+            <input type="text" id="signupUsername" required />
+            <label>Choose Username</label>
+          </div>
+          <div class="input-group">
+            <input type="email" id="signupEmail" required />
+            <label>Email</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="signupPassword" required />
+            <label>Create Password</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="confirmPassword" required />
+            <label>Confirm Password</label>
+          </div>
+          <div class="error-message" id="signupError"></div>
+          <button type="submit" class="btn">Begin Journey</button>
+          <div class="switch-form">
+            Already a warrior?
+            <a href="#" onclick="toggleForm('login')">Login</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Background Effects -->
+      <div class="background-effects">
+        <div class="effect"></div>
+        <div class="effect"></div>
+        <div class="effect"></div>
+        <div class="effect"></div>
+      </div>
+    </div>
+
+    <script>
+      // Loading screen handler
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          document.querySelector(".loader").classList.add("hidden");
+        }, 1000);
+      });
+
+      // Store user data
+      let users = [];
+
+      // Prevent zoom on double tap (mobile)
+      document.addEventListener(
+        "touchmove",
+        function (event) {
+          if (event.scale !== 1) {
+            event.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+
+      function toggleForm(formType) {
+        const loginForm = document.querySelector(".form-container.login");
+        const signupForm = document.querySelector(".form-container.signup");
+
+        // Clear any error messages
+        document
+          .querySelectorAll(".error-message")
+          .forEach((elem) => (elem.textContent = ""));
+
+        // Reset forms
+        document.getElementById("loginForm").reset();
+        document.getElementById("signupForm").reset();
+
+        // Add touch feedback for mobile
+        const targetForm = formType === "signup" ? signupForm : loginForm;
+        if (window.innerWidth <= 768) {
+          targetForm.style.transform = "scale(0.95)";
+          setTimeout(() => {
+            targetForm.style.transform = "";
+          }, 200);
+        }
+
+        if (formType === "signup") {
+          loginForm.classList.remove("active");
+          setTimeout(() => {
+            loginForm.style.display = "none";
+            signupForm.style.display = "block";
+            setTimeout(() => signupForm.classList.add("active"), 50);
+          }, 300);
+        } else {
+          signupForm.classList.remove("active");
+          setTimeout(() => {
+            signupForm.style.display = "none";
+            loginForm.style.display = "block";
+            setTimeout(() => loginForm.classList.add("active"), 50);
+          }, 300);
+        }
+      }
+
+      async function handleSignup(event) {
+        event.preventDefault();
+        const username = document.getElementById("signupUsername").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+        const errorElement = document.getElementById("signupError");
+
+        // Clear previous error
+        errorElement.textContent = "";
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          errorElement.textContent = "Passwords do not match!";
+          return false;
+        }
+
+        // Check if username already exists
+        if (users.some((user) => user.username === username)) {
+          errorElement.textContent = "Username already exists!";
+          return false;
+        }
+        console.log(({username,password,email}));
+
+
+        const response = await fetch("http://localhost:3000/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username,email,password }),
+            credentials: "include" // Include cookies (for session)
+        });
+        const data = await response.json();
+        if(!sessionStorage.getItem("userId")){
+            sessionStorage.setItem("userId",data.userId)
+        }
+
+        // Store new user
+        <!-- users.push({ username, email, password }); -->
+
+        // Show success message and switch to login
+        errorElement.textContent = "Registration successful!";
+        errorElement.style.color = "#00ffaa";
+        setTimeout(() => toggleForm("login"), 1500);
+        return false;
+      }
+
+      function handleLogin(event) {
+        event.preventDefault();
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+        const errorElement = document.getElementById("loginError");
+
+        // Clear previous error
+        errorElement.textContent = "";
+
+        // Find user
+        const user = users.find((u) => u.username === username);
+
+        if (!user) {
+          errorElement.textContent = "User not found!";
+          return false;
+        }
+
+        if (user.password !== password) {
+          errorElement.textContent = "Incorrect password!";
+          return false;
+        }
+
+        // Login successful
+        errorElement.textContent = "Login successful!";
+        errorElement.style.color = "#00ffaa";
+        return false;
+      }
+
+      // Create floating cubes dynamically
+      function createCubes() {
+        const container = document.querySelector(".container");
+        const cubeCount = window.innerWidth <= 768 ? 3 : 5; // Fewer cubes on mobile
+
+        for (let i = 0; i < cubeCount; i++) {
+          const cube = document.createElement("div");
+          cube.className = "cube";
+          cube.style.top = Math.random() * 100 + "%";
+          cube.style.left = Math.random() * 100 + "%";
+          cube.style.animationDelay = -Math.random() * 6 + "s";
+
+          ["front", "back", "right", "left", "top", "bottom"].forEach(
+            (side) => {
+              const div = document.createElement("div");
+              div.className = "cube-" + side;
+              cube.appendChild(div);
+            }
+          );
+
+          container.appendChild(cube);
+        }
+      }
+
+      createCubes();
+
+      // Handle orientation change
+      window.addEventListener("orientationchange", () => {
+        document.body.style.height = window.innerHeight + "px";
+      });
+    </script>
+  </body>
+</html>
